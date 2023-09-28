@@ -351,6 +351,7 @@ Esse endpoint deverá somar o valor do depósito ao saldo de uma conta válida e
 
 ```javascript
 {
+    "data": "2023-09-28 15:15:00",
     "numero_conta": "1",
     "valor": 10000
 }
