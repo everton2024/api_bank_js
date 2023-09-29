@@ -60,6 +60,55 @@ class Transations {
     data.saques.push(registreWithdraw);
     account.saldo = account.saldo - valueFormat;
     await write(data);
+
+    return successResponse200(res);
+  }
+
+  async transfer(req, res) {
+    const { numero_conta_origem, numero_conta_destino, valor, senha } =
+      req.body;
+    if (!numero_conta_destino || !numero_conta_origem || !valor || !senha) {
+      return errorResponse400(
+        res,
+        'Contas de origem e destino, senha e valor são obrigatorios'
+      );
+    }
+
+    const accountOrigin = data.contas.find(
+      (i) => i.numero === numero_conta_origem
+    );
+    if (!accountOrigin) {
+      return errorResponse400(res, 'Conta de origen inexistente');
+    }
+    if (senha !== accountOrigin.usuario.senha)
+      return errorResponse400(res, 'Senha inválida');
+
+    const accountDestiny = data.contas.find(
+      (i) => i.numero === numero_conta_destino
+    );
+    if (!accountDestiny) {
+      return errorResponse400(res, 'Conta de destino inexistente');
+    }
+
+    const valueFormat = valueCents(valor);
+    if (valueFormat > accountOrigin.saldo) {
+      return errorResponse400(res, 'Saldo insuficiente!');
+    }
+
+    const registredTransfer = {
+      data: dateTime(),
+      numero_conta_origem: accountOrigin.numero,
+      numero_conta_destino: accountDestiny.numero,
+      valor: valueFormat,
+    };
+
+    data.transferencias.push(registredTransfer);
+    accountOrigin.saldo = accountOrigin.saldo - valueFormat;
+    accountDestiny.saldo = accountDestiny.saldo + valueFormat;
+
+    await write(data);
+
+    return successResponse200(res);
   }
 }
 

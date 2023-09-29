@@ -4,6 +4,8 @@ const valueCents = (value) => {
   const valueSplitPoint = valueString.split('.');
   if (valueSplitComma.length > 1 || valueSplitPoint.length > 1) {
     const cleanValue = valueString.replace(/\D/g, '');
+    console.log('teste', cleanValue);
+
     return Number(cleanValue);
   }
 
