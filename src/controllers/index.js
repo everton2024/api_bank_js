@@ -2,12 +2,7 @@ const fs = require('fs/promises');
 const data = require('../models/data');
 const { successResponse200 } = require('../utils/responses/successResponse');
 const { errorResponse400 } = require('../utils/responses/errorResponse');
-const cpfIsValid = require('../utils/validators/cpf');
-const dateOfBirdIsValid = require('../utils/validators/dateOfBird');
-const emailIsValid = require('../utils/validators/email');
-const nameIsValid = require('../utils/validators/name');
-const phoneIsValid = require('../utils/validators/phone');
-const passwordIsValid = require('../utils/validators/password');
+const isValidUserAccount = require('../utils/validators');
 
 class Account {
   index(req, res) {
@@ -17,25 +12,15 @@ class Account {
   async store(req, res) {
     const { nome, cpf, data_nascimento, telefone, email, senha } = req.body;
 
-    const { valid: validName, message: messageName } = nameIsValid(nome);
-    if (!validName) return errorResponse400(res, messageName);
-
-    const { valid: validcpf, message: messagecpf } = cpfIsValid(cpf);
-    if (!validcpf) return errorResponse400(res, messagecpf);
-
-    const { valid: validDateBird, message: messageDateBird } =
-      dateOfBirdIsValid(data_nascimento);
-    if (!validDateBird) return errorResponse400(res, messageDateBird);
-
-    const { valid: validPhone, message: messagePhone } = phoneIsValid(telefone);
-    if (!validPhone) return errorResponse400(res, messagePhone);
-
-    const { valid: validEmail, message: messageEmail } = emailIsValid(email);
-    if (!validEmail) return errorResponse400(res, messageEmail);
-
-    const { valid: validPassword, message: messagePassword } =
-      passwordIsValid(senha);
-    if (!validPassword) return errorResponse400(res, messagePassword);
+    const { valid, message } = isValidUserAccount(
+      nome,
+      cpf,
+      data_nascimento,
+      telefone,
+      email,
+      senha
+    );
+    if (!valid) return errorResponse400(res, message);
 
     const newAccountNumber =
       Number(data.contas[data.contas.length - 1].numero) + 1;
@@ -63,27 +48,44 @@ class Account {
 
     return successResponse200(res);
   }
+
+  async update(req, res) {
+    const { numeroConta } = req.params;
+    let accountUser = data.contas.find((i) => i.numero === numeroConta);
+    if (!accountUser) return errorResponse400(res, 'Conta inexistente');
+
+    const { nome, cpf, data_nascimento, telefone, email, senha } = req.body;
+
+    const { valid, message } = isValidUserAccount(
+      nome,
+      cpf,
+      data_nascimento,
+      telefone,
+      email,
+      senha
+    );
+    if (!valid) return errorResponse400(res, message);
+
+    const cleanCpf = cpf.replace(/\D/g, '');
+    const cleanPhone = telefone.replace(/\D/g, '');
+    accountUser.usuario = {
+      nome,
+      cpf: cleanCpf,
+      data_nascimento,
+      telefone: cleanPhone,
+      email,
+      senha,
+    };
+
+    const dataStringfy = JSON.stringify(data);
+
+    await fs.writeFile(
+      'src/models/data.js',
+      `module.exports = ${dataStringfy}`
+    );
+
+    return successResponse200(res);
+  }
 }
 
 module.exports = new Account();
-
-// {
-//   numero: '1',
-//   saldo: 0,
-//   usuario: {
-//     nome: 'Foo Bar',
-//     cpf: '00011122233',
-//     data_nascimento: '2021-03-15',
-//     telefone: '71999998888',
-//     email: 'foo@bar.com',
-//     senha: '1234',
-//   },
-// },
-
-// {
-// 	"email": "teste@teste.com",
-// 	"cpf": "07128842543",
-// 	"telefone": "71 99314-1181",
-// 	"data_nascimento": "1995-09-20",
-// 	"senha": "123456"
-// }

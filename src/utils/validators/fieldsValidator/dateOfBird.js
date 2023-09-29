@@ -1,4 +1,4 @@
-const isDigit = require('../isDigit');
+const isDigit = require('../../isDigit');
 
 const dateOfBirdIsValid = (date) => {
   if (!date) {

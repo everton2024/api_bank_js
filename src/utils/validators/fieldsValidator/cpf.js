@@ -1,5 +1,5 @@
 const cpfCheck = require('cpf-check');
-const data = require('../../models/data');
+const data = require('../../../models/data');
 
 const cpfIsValid = (cpf) => {
   if (!cpf) return { valid: false, message: 'Cpf não digitado' };

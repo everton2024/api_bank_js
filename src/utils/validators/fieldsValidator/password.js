@@ -1,4 +1,4 @@
-const isDigit = require('../isDigit');
+const isDigit = require('../../isDigit');
 
 const passwordIsValid = (password) => {
   if (!password) return { valid: false, message: 'Digite a senha' };

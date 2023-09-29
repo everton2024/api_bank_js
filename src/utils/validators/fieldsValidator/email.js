@@ -1,5 +1,5 @@
 const validator = require('validator');
-const data = require('../../models/data');
+const data = require('../../../models/bancodedados');
 
 const emailIsValid = (email) => {
   if (!email) return { valid: false, message: 'Email não digitado' };
