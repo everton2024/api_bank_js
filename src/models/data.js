@@ -36,5 +36,12 @@ module.exports = {
     { data: '2023-09-29 15:57:58', numero_conta: '1', valor: 100050 },
     { data: '2023-09-29 16:13:49', numero_conta: '1', valor: 100050 },
   ],
-  transferencias: [],
+  transferencias: [
+    {
+      data: '2021-08-10 23:40:35',
+      numero_conta_origem: '1',
+      numero_conta_destino: '2',
+      valor: 10000,
+    },
+  ],
 };

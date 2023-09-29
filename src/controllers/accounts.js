@@ -51,8 +51,8 @@ class Account {
 
   async update(req, res) {
     const { numeroConta } = req.params;
-    let accountUser = data.contas.find((i) => i.numero === numeroConta);
-    if (!accountUser) return errorResponse400(res, 'Conta inexistente');
+    const { account, message: messageUserExist } = accountUser(numeroConta);
+    if (!account) return errorResponse400(res, messageUserExist);
 
     const { nome, cpf, data_nascimento, telefone, email, senha } = req.body;
 
@@ -84,8 +84,8 @@ class Account {
 
   async delete(req, res) {
     const { numeroConta } = req.params;
-    const accountUser = data.contas.find((i) => i.numero === numeroConta);
-    if (!accountUser) return errorResponse400(res, 'Conta inexistente');
+    const { account, message } = accountUser(numeroConta);
+    if (!account) return errorResponse400(res, message);
 
     if (accountUser.saldo !== 0)
       return errorResponse400(
@@ -99,6 +99,53 @@ class Account {
 
     return successResponse200(res);
   }
+
+  readWithdraw(req, res) {
+    const { numero_conta, senha } = req.query;
+    if (!numero_conta || !senha) {
+      return errorResponse400(res, 'Numero da conta e senha são obrigatorios');
+    }
+    const { account, message } = accountUser(numero_conta);
+    if (!account) return errorResponse400(res, message);
+
+    if (senha !== account.usuario.senha)
+      return errorResponse400(res, 'Senha inválida');
+
+    return successResponse200(res, { saldo: account.saldo });
+  }
+
+  extractAccount(req, res) {
+    const { numero_conta, senha } = req.query;
+    if (!numero_conta || !senha) {
+      return errorResponse400(res, 'Numero e senha da conta são obrigatorios');
+    }
+
+    const { account, message } = accountUser(numero_conta);
+    if (!account) {
+      return errorResponse400(res, message);
+    }
+    if (senha !== account.usuario.senha) {
+      return errorResponse400(res, 'Senha invalida');
+    }
+
+    const extract = {
+      depositos: data.depositos.filter((i) => i.numero_conta === numero_conta),
+      saque: data.saques.filter((i) => i.numero_conta === numero_conta),
+      transferenciasEnviadas: data.transferencias.filter(
+        (i) => i.numero_conta_origem === numero_conta
+      ),
+      transferenciasRecebidas: data.transferencias.filter(
+        (i) => i.numero_conta_destino === numero_conta
+      ),
+    };
+
+    return successResponse200(res, extract);
+  }
+}
+
+function accountUser(numberAccount) {
+  const account = data.contas.find((i) => i.numero === numberAccount);
+  return { account, message: 'Conta bancária não encontada!' };
 }
 
 module.exports = new Account();
