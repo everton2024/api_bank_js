@@ -1,8 +1,8 @@
-const fs = require('fs/promises');
 const data = require('../models/data');
 const { successResponse200 } = require('../utils/responses/successResponse');
 const { errorResponse400 } = require('../utils/responses/errorResponse');
 const isValidUserAccount = require('../utils/validators');
+const write = require('../models/writeDB');
 
 class Account {
   index(req, res) {
@@ -22,8 +22,13 @@ class Account {
     );
     if (!valid) return errorResponse400(res, message);
 
-    const newAccountNumber =
-      Number(data.contas[data.contas.length - 1].numero) + 1;
+    let newAccountNumber = '';
+    if (data.contas.length !== 0) {
+      newAccountNumber = Number(data.contas[data.contas.length - 1].numero) + 1;
+    } else {
+      newAccountNumber = '1';
+    }
+
     const cleanCpf = cpf.replace(/\D/g, '');
     const cleanPhone = telefone.replace(/\D/g, '');
     const newAccount = {
@@ -39,7 +44,7 @@ class Account {
       },
     };
     data.contas.push(newAccount);
-    await write();
+    await write(data);
 
     return successResponse200(res);
   }
@@ -72,7 +77,7 @@ class Account {
       senha,
     };
 
-    await write();
+    await write(data);
 
     return successResponse200(res);
   }
@@ -90,15 +95,10 @@ class Account {
 
     const index = data.contas.indexOf(accountUser);
     data.contas.splice(index, 1);
-    await write();
+    await write(data);
 
     return successResponse200(res);
   }
-}
-
-async function write() {
-  const dataStringfy = JSON.stringify(data);
-  await fs.writeFile('src/models/data.js', `module.exports = ${dataStringfy}`);
 }
 
 module.exports = new Account();

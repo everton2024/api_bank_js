@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const account = require('../controllers');
+const account = require('../controllers/accounts');
 const isAuthorized = require('../middlewares/bankPassword');
 
 const routes = Router();

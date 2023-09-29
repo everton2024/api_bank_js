@@ -1,9 +1,11 @@
 const express = require('express');
-const routes = require('./routes');
+const routesAccounts = require('./routes/accounts');
+const routesTransations = require('./routes/transactions');
 
 const app = express();
 
 app.use(express.json());
-app.use(routes);
+app.use(routesAccounts);
+app.use(routesTransations);
 
 app.listen(3000);
