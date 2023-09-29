@@ -8,7 +8,7 @@ module.exports = {
   contas: [
     {
       numero: '1',
-      saldo: 0,
+      saldo: 190100,
       usuario: {
         nome: 'erick costa',
         cpf: '73762566011',
@@ -31,9 +31,10 @@ module.exports = {
       },
     },
   ],
-  saques: [],
+  saques: [{ data: '2023-09-29 16:14:41', numero_conta: '1', valor: 10000 }],
   depositos: [
-    { data: '2023-09-29 15:43:28', numero_conta: '1', valor: '100050' },
+    { data: '2023-09-29 15:57:58', numero_conta: '1', valor: 100050 },
+    { data: '2023-09-29 16:13:49', numero_conta: '1', valor: 100050 },
   ],
   transferencias: [],
 };

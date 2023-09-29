@@ -3,6 +3,7 @@ const transations = require('../controllers/transations');
 
 const routes = Router();
 
-routes.get('/transacoes/depositar', transations.deposit);
+routes.post('/transacoes/depositar', transations.deposit);
+routes.post('/transacoes/sacar', transations.withdraw);
 
 module.exports = routes;

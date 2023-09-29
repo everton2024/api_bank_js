@@ -7,7 +7,7 @@ const valueCents = (value) => {
     return Number(cleanValue);
   }
 
-  return value;
+  return Number(value);
 };
 
 module.exports = valueCents;
