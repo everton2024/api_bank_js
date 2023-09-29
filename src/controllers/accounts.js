@@ -1,11 +1,19 @@
-const data = require('../models/data');
-const { successResponse200 } = require('../utils/responses/successResponse');
+const data = require('../models/bancodedados');
+const {
+  successResponse200,
+  successResponse204,
+  successResponse201,
+} = require('../utils/responses/successResponse');
 const { errorResponse400 } = require('../utils/responses/errorResponse');
 const isValidUserAccount = require('../utils/validators');
 const write = require('../models/writeDB');
+const accountUser = require('../models/findUser');
 
 class Account {
   index(req, res) {
+    if (data.contas.length === 0) {
+      return successResponse204(res);
+    }
     return successResponse200(res, data.contas);
   }
 
@@ -46,7 +54,7 @@ class Account {
     data.contas.push(newAccount);
     await write(data);
 
-    return successResponse200(res);
+    return successResponse201(res);
   }
 
   async update(req, res) {
@@ -62,13 +70,14 @@ class Account {
       data_nascimento,
       telefone,
       email,
-      senha
+      senha,
+      numeroConta
     );
     if (!valid) return errorResponse400(res, message);
 
     const cleanCpf = cpf.replace(/\D/g, '');
     const cleanPhone = telefone.replace(/\D/g, '');
-    accountUser.usuario = {
+    account.usuario = {
       nome,
       cpf: cleanCpf,
       data_nascimento,
@@ -79,7 +88,7 @@ class Account {
 
     await write(data);
 
-    return successResponse200(res);
+    return successResponse204(res);
   }
 
   async delete(req, res) {
@@ -87,7 +96,7 @@ class Account {
     const { account, message } = accountUser(numeroConta);
     if (!account) return errorResponse400(res, message);
 
-    if (accountUser.saldo !== 0)
+    if (account.saldo !== 0)
       return errorResponse400(
         res,
         'A conta só pode ser removida se o saldo for zero!'
@@ -97,10 +106,10 @@ class Account {
     data.contas.splice(index, 1);
     await write(data);
 
-    return successResponse200(res);
+    return successResponse204(res);
   }
 
-  readWithdraw(req, res) {
+  readBalance(req, res) {
     const { numero_conta, senha } = req.query;
     if (!numero_conta || !senha) {
       return errorResponse400(res, 'Numero da conta e senha são obrigatorios');
@@ -141,11 +150,6 @@ class Account {
 
     return successResponse200(res, extract);
   }
-}
-
-function accountUser(numberAccount) {
-  const account = data.contas.find((i) => i.numero === numberAccount);
-  return { account, message: 'Conta bancária não encontada!' };
 }
 
 module.exports = new Account();

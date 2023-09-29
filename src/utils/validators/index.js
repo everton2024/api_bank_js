@@ -11,12 +11,16 @@ const isValidUserAccount = (
   data_nascimento,
   telefone,
   email,
-  senha
+  senha,
+  numberAccount = ''
 ) => {
   const { valid: validName, message: messageName } = nameIsValid(nome);
   if (!validName) return { validName, message: messageName };
 
-  const { valid: validcpf, message: messagecpf } = cpfIsValid(cpf);
+  const { valid: validcpf, message: messagecpf } = cpfIsValid(
+    cpf,
+    numberAccount
+  );
   if (!validcpf) return { validcpf, message: messagecpf };
 
   const { valid: validDateBird, message: messageDateBird } =
@@ -26,7 +30,10 @@ const isValidUserAccount = (
   const { valid: validPhone, message: messagePhone } = phoneIsValid(telefone);
   if (!validPhone) return { validPhone, message: messagePhone };
 
-  const { valid: validEmail, message: messageEmail } = emailIsValid(email);
+  const { valid: validEmail, message: messageEmail } = emailIsValid(
+    email,
+    numberAccount
+  );
   if (!validEmail) return { validEmail, message: messageEmail };
 
   const { valid: validPassword, message: messagePassword } =

@@ -1,9 +1,10 @@
-const data = require('../models/data');
+const data = require('../models/bancodedados');
 const write = require('../models/writeDB');
 const dateTime = require('../utils/formats/dateTime');
 const valueCents = require('../utils/formats/valueCents');
 const { errorResponse400 } = require('../utils/responses/errorResponse');
-const { successResponse200 } = require('../utils/responses/successResponse');
+const { successResponse204 } = require('../utils/responses/successResponse');
+const accountUser = require('../models/findUser');
 
 class Transations {
   async deposit(req, res) {
@@ -14,8 +15,8 @@ class Transations {
         'O número da conta e o valor são obrigatórios!'
       );
 
-    const account = data.contas.find((i) => i.numero === numero_conta);
-    if (!account) return errorResponse400(res, 'Conta inexistente');
+    const { account, message } = accountUser(numero_conta);
+    if (!account) return errorResponse400(res, message);
 
     const valueFormat = valueCents(valor);
     const registreDeposit = {
@@ -28,7 +29,7 @@ class Transations {
     account.saldo = account.saldo + valueFormat;
     await write(data);
 
-    return successResponse200(res);
+    return successResponse204(res);
   }
 
   async withdraw(req, res) {
@@ -39,8 +40,8 @@ class Transations {
         'O número da conta, valor e senha são obrigatórios!'
       );
 
-    const account = data.contas.find((i) => i.numero === numero_conta);
-    if (!account) return errorResponse400(res, 'Conta inexistente');
+    const { account, message } = accountUser(numero_conta);
+    if (!account) return errorResponse400(res, message);
 
     if (senha !== account.usuario.senha)
       return errorResponse400(res, 'Senha inválida');
@@ -61,7 +62,7 @@ class Transations {
     account.saldo = account.saldo - valueFormat;
     await write(data);
 
-    return successResponse200(res);
+    return successResponse204(res);
   }
 
   async transfer(req, res) {
@@ -73,22 +74,22 @@ class Transations {
         'Contas de origem e destino, senha e valor são obrigatorios'
       );
     }
-
-    const accountOrigin = data.contas.find(
-      (i) => i.numero === numero_conta_origem
-    );
-    if (!accountOrigin) {
-      return errorResponse400(res, 'Conta de origen inexistente');
+    if (numero_conta_origem === numero_conta_destino) {
+      return errorResponse400(
+        res,
+        'Não é possivel fazer tranferencia para a mesma conta'
+      );
     }
+
+    const { account: accountOrigin } = accountUser(numero_conta_origem);
+    if (!accountOrigin)
+      return errorResponse400(res, 'Conta de origem não encontrada');
     if (senha !== accountOrigin.usuario.senha)
       return errorResponse400(res, 'Senha inválida');
 
-    const accountDestiny = data.contas.find(
-      (i) => i.numero === numero_conta_destino
-    );
-    if (!accountDestiny) {
-      return errorResponse400(res, 'Conta de destino inexistente');
-    }
+    const { account: accountDestiny } = accountUser(numero_conta_destino);
+    if (!accountDestiny)
+      return errorResponse400(res, 'Conta de destino não encontrada');
 
     const valueFormat = valueCents(valor);
     if (valueFormat > accountOrigin.saldo) {
@@ -108,7 +109,7 @@ class Transations {
 
     await write(data);
 
-    return successResponse200(res);
+    return successResponse204(res);
   }
 }
 

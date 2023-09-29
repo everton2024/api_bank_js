@@ -5,7 +5,7 @@ const isAuthorized = require('../middlewares/bankPassword');
 const routes = Router();
 
 routes.get('/contas', isAuthorized, account.index);
-routes.get('/contas/saldo', account.readWithdraw);
+routes.get('/contas/saldo', account.readBalance);
 routes.get('/contas/extrato', account.extractAccount);
 
 routes.post('/contas', account.store);
