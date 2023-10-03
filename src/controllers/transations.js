@@ -2,7 +2,10 @@ const data = require('../models/bancodedados');
 const write = require('../models/writeDB');
 const dateTime = require('../utils/formats/dateTime');
 const valueCents = require('../utils/formats/valueCents');
-const { errorResponse400 } = require('../utils/responses/errorResponse');
+const {
+  errorResponse400,
+  errorResponse403,
+} = require('../utils/responses/errorResponse');
 const { successResponse204 } = require('../utils/responses/successResponse');
 const accountUser = require('../models/findUser');
 
@@ -27,7 +30,11 @@ class Transations {
 
     data.depositos.push(registreDeposit);
     account.saldo = account.saldo + valueFormat;
-    await write(data);
+    try {
+      await write(data);
+    } catch (error) {
+      return errorResponse403(res);
+    }
 
     return successResponse204(res);
   }
@@ -60,7 +67,11 @@ class Transations {
     };
     data.saques.push(registreWithdraw);
     account.saldo = account.saldo - valueFormat;
-    await write(data);
+    try {
+      await write(data);
+    } catch (error) {
+      return errorResponse403(res);
+    }
 
     return successResponse204(res);
   }
@@ -107,7 +118,11 @@ class Transations {
     accountOrigin.saldo = accountOrigin.saldo - valueFormat;
     accountDestiny.saldo = accountDestiny.saldo + valueFormat;
 
-    await write(data);
+    try {
+      await write(data);
+    } catch (error) {
+      return errorResponse403(res);
+    }
 
     return successResponse204(res);
   }

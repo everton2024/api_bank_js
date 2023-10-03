@@ -4,7 +4,10 @@ const {
   successResponse204,
   successResponse201,
 } = require('../utils/responses/successResponse');
-const { errorResponse400 } = require('../utils/responses/errorResponse');
+const {
+  errorResponse400,
+  errorResponse403,
+} = require('../utils/responses/errorResponse');
 const isValidUserAccount = require('../utils/validators');
 const write = require('../models/writeDB');
 const accountUser = require('../models/findUser');
@@ -52,7 +55,11 @@ class Account {
       },
     };
     data.contas.push(newAccount);
-    await write(data);
+    try {
+      await write(data);
+    } catch (error) {
+      return errorResponse403(res);
+    }
 
     return successResponse201(res);
   }
@@ -86,7 +93,11 @@ class Account {
       senha,
     };
 
-    await write(data);
+    try {
+      await write(data);
+    } catch (error) {
+      return errorResponse403(res);
+    }
 
     return successResponse204(res);
   }
@@ -104,7 +115,11 @@ class Account {
 
     const index = data.contas.indexOf(accountUser);
     data.contas.splice(index, 1);
-    await write(data);
+    try {
+      await write(data);
+    } catch (error) {
+      return errorResponse403(res);
+    }
 
     return successResponse204(res);
   }
