@@ -12,8 +12,7 @@ const cpfIsValid = (cpf, numberAccount = '') => {
   const dataWithoutSpecificUser = data.contas.filter(
     (i) => i.numero !== numberAccount
   );
-  console.log(data);
-  console.log(dataWithoutSpecificUser);
+
   const isUniqueCpf = dataWithoutSpecificUser.some(
     (i) => i.usuario.cpf === cleanCpf
   );
